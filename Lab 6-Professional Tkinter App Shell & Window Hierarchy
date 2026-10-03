@@ -1,0 +1,608 @@
+import tkinter as tk
+from tkinter import messagebox
+from datetime import datetime
+
+
+BG = "#F4F5FA"
+SIDEBAR = "#211B3A"
+PRIMARY = "#7255D9"
+PRIMARY_HOVER = "#6043C5"
+WHITE = "#FFFFFF"
+DARK = "#292640"
+GRAY = "#85839A"
+LIGHT_PURPLE = "#EEE9FF"
+GREEN = "#20A779"
+RED = "#E45B68"
+
+students = []
+
+
+def create_button(parent, text, command, bg=PRIMARY, fg=WHITE,
+                  width=18, font=("Arial", 10, "bold")):
+
+    return tk.Button(
+        parent,
+        text=text,
+        command=command,
+        bg=bg,
+        fg=fg,
+        activebackground=PRIMARY_HOVER,
+        activeforeground=WHITE,
+        font=font,
+        width=width,
+        relief="flat",
+        bd=0,
+        cursor="hand2",
+        pady=10
+    )
+
+
+def update_dashboard():
+
+    total_students.config(text=str(len(students)))
+
+    total_courses.config(
+        text=str(len(set(s["course"] for s in students)))
+    )
+
+    recent_students.config(text=str(len(students)))
+
+
+def open_new_window():
+
+    new_window = tk.Toplevel(root)
+
+    new_window.title("Add New Student")
+    new_window.geometry("500x530")
+    new_window.resizable(False, False)
+    new_window.configure(bg=BG)
+    new_window.transient(root)
+
+    # Center the child window
+    new_window.update_idletasks()
+    x = root.winfo_x() + (root.winfo_width() - 500) // 2
+    y = root.winfo_y() + (root.winfo_height() - 530) // 2
+    new_window.geometry(f"+{x}+{y}")
+
+    # Header
+    header = tk.Frame(new_window, bg=SIDEBAR, height=110)
+    header.pack(fill="x")
+
+    tk.Label(
+        header,
+        text="ADD NEW STUDENT",
+        font=("Arial", 19, "bold"),
+        bg=SIDEBAR,
+        fg=WHITE
+    ).pack(pady=(25, 5))
+
+    tk.Label(
+        header,
+        text="Enter the student's information below",
+        font=("Arial", 10),
+        bg=SIDEBAR,
+        fg="#C9C2E4"
+    ).pack()
+
+    # Form container
+    form = tk.Frame(new_window, bg=WHITE, padx=35, pady=20)
+    form.pack(fill="both", expand=True, padx=20, pady=20)
+
+    # Student Name
+    tk.Label(
+        form,
+        text="Student Name",
+        font=("Arial", 10, "bold"),
+        bg=WHITE,
+        fg=DARK
+    ).pack(anchor="w", pady=(5, 5))
+
+    name_entry = tk.Entry(
+        form,
+        font=("Arial", 11),
+        relief="solid",
+        bd=1
+    )
+    name_entry.pack(fill="x", ipady=8)
+
+    # Student ID
+    tk.Label(
+        form,
+        text="Student ID",
+        font=("Arial", 10, "bold"),
+        bg=WHITE,
+        fg=DARK
+    ).pack(anchor="w", pady=(18, 5))
+
+    id_entry = tk.Entry(
+        form,
+        font=("Arial", 11),
+        relief="solid",
+        bd=1
+    )
+    id_entry.pack(fill="x", ipady=8)
+
+    # Course
+    tk.Label(
+        form,
+        text="Course",
+        font=("Arial", 10, "bold"),
+        bg=WHITE,
+        fg=DARK
+    ).pack(anchor="w", pady=(18, 5))
+
+    course_entry = tk.Entry(
+        form,
+        font=("Arial", 11),
+        relief="solid",
+        bd=1
+    )
+    course_entry.pack(fill="x", ipady=8)
+
+    # Save Function
+    def save_student():
+
+        name = name_entry.get().strip()
+        student_id = id_entry.get().strip()
+        course = course_entry.get().strip()
+
+        if name == "" or student_id == "" or course == "":
+            messagebox.showwarning(
+                "Incomplete Information",
+                "Please fill in all fields.",
+                parent=new_window
+            )
+            return
+
+        # Check for duplicate student ID
+        for student in students:
+            if student["id"] == student_id:
+                messagebox.showwarning(
+                    "Duplicate ID",
+                    "This Student ID already exists.",
+                    parent=new_window
+                )
+                return
+
+        # Save student information
+        students.append({
+            "name": name,
+            "id": student_id,
+            "course": course
+        })
+
+        update_dashboard()
+
+        messagebox.showinfo(
+            "Success",
+            "Student information saved successfully!",
+            parent=new_window
+        )
+
+        new_window.destroy()
+
+    # Buttons
+    create_button(
+        form,
+        "SAVE STUDENT",
+        save_student,
+        width=25
+    ).pack(pady=(25, 8))
+
+    create_button(
+        form,
+        "CANCEL",
+        new_window.destroy,
+        bg="#E9E8EF",
+        fg=DARK,
+        width=25
+    ).pack()
+
+
+def open_about_window():
+
+    about_window = tk.Toplevel(root)
+
+    about_window.title("About Application")
+    about_window.geometry("500x440")
+    about_window.resizable(False, False)
+    about_window.configure(bg=BG)
+    about_window.transient(root)
+
+    # Center the window
+    about_window.update_idletasks()
+    x = root.winfo_x() + (root.winfo_width() - 500) // 2
+    y = root.winfo_y() + (root.winfo_height() - 440) // 2
+    about_window.geometry(f"+{x}+{y}")
+
+    # Header
+    header = tk.Frame(about_window, bg=SIDEBAR, height=130)
+    header.pack(fill="x")
+
+    tk.Label(
+        header,
+        text="SMS",
+        font=("Arial", 30, "bold"),
+        bg=SIDEBAR,
+        fg=WHITE
+    ).pack(pady=(20, 0))
+
+    tk.Label(
+        header,
+        text="STUDENT MANAGEMENT SYSTEM",
+        font=("Arial", 13, "bold"),
+        bg=SIDEBAR,
+        fg=WHITE
+    ).pack(pady=5)
+
+    # Information
+    content = tk.Frame(about_window, bg=WHITE, padx=30, pady=20)
+    content.pack(fill="both", expand=True, padx=20, pady=20)
+
+    tk.Label(
+        content,
+        text="About This Application",
+        font=("Arial", 16, "bold"),
+        bg=WHITE,
+        fg=DARK
+    ).pack(pady=(0, 12))
+
+    tk.Label(
+        content,
+        text=(
+            "A desktop application shell developed using\n"
+            "Python and Tkinter for student information\n"
+            "management and application interface practice."
+        ),
+        font=("Arial", 10),
+        bg=WHITE,
+        fg=GRAY,
+        justify="center"
+    ).pack(pady=5)
+
+    tk.Label(
+        content,
+        text=(
+            "\nAPPLICATION DETAILS\n\n"
+            "Application: Student Management System\n"
+            "Developed by: Group D\n"
+            "Course: Python Programming with Tkinter\n"
+            "Version: 1.0\n"
+            "Technology: Python Tkinter"
+        ),
+        font=("Arial", 10),
+        bg=WHITE,
+        fg=DARK,
+        justify="center"
+    ).pack(pady=10)
+
+    create_button(
+        content,
+        "CLOSE",
+        about_window.destroy,
+        width=20
+    ).pack(pady=10)
+
+
+def exit_application():
+
+    answer = messagebox.askyesno(
+        "Exit Application",
+        "Are you sure you want to exit?"
+    )
+
+    if answer:
+        root.destroy()
+
+
+root = tk.Tk()
+
+root.title("Student Management System")
+root.geometry("1050x680")
+root.minsize(900, 600)
+root.configure(bg=BG)
+
+
+menu_bar = tk.Menu(root)
+
+file_menu = tk.Menu(menu_bar, tearoff=0)
+
+file_menu.add_command(
+    label="New Student",
+    command=open_new_window
+)
+
+file_menu.add_command(
+    label="About",
+    command=open_about_window
+)
+
+file_menu.add_separator()
+
+file_menu.add_command(
+    label="Exit",
+    command=exit_application
+)
+
+menu_bar.add_cascade(
+    label="File",
+    menu=file_menu
+)
+
+root.config(menu=menu_bar)
+
+
+sidebar = tk.Frame(root, bg=SIDEBAR, width=230)
+sidebar.pack(side="left", fill="y")
+sidebar.pack_propagate(False)
+
+# Application Logo
+tk.Label(
+    sidebar,
+    text="SMS",
+    font=("Arial", 27, "bold"),
+    bg=SIDEBAR,
+    fg=WHITE
+).pack(pady=(35, 0))
+
+tk.Label(
+    sidebar,
+    text="STUDENT MANAGEMENT",
+    font=("Arial", 9, "bold"),
+    bg=SIDEBAR,
+    fg="#AAA2C9"
+).pack(pady=(0, 35))
+
+# Sidebar Navigation
+tk.Label(
+    sidebar,
+    text="MAIN MENU",
+    font=("Arial", 9, "bold"),
+    bg=SIDEBAR,
+    fg="#9289B4"
+).pack(anchor="w", padx=25, pady=10)
+
+
+def sidebar_button(text, command, active=False):
+
+    color = "#403565" if active else SIDEBAR
+
+    button = tk.Button(
+        sidebar,
+        text=text,
+        command=command,
+        font=("Arial", 11, "bold"),
+        bg=color,
+        fg=WHITE,
+        activebackground="#403565",
+        activeforeground=WHITE,
+        relief="flat",
+        bd=0,
+        anchor="w",
+        padx=25,
+        pady=14,
+        cursor="hand2"
+    )
+
+    button.pack(fill="x", padx=10, pady=3)
+
+    return button
+
+
+sidebar_button("   Dashboard", lambda: None, active=True)
+
+sidebar_button("   + New Student", open_new_window)
+
+sidebar_button("   About Application", open_about_window)
+
+# Sidebar Footer
+tk.Label(
+    sidebar,
+    text="VERSION 1.0\nPython Tkinter Project",
+    font=("Arial", 9),
+    bg=SIDEBAR,
+    fg="#9289B4",
+    justify="left"
+).pack(side="bottom", anchor="w", padx=25, pady=25)
+
+
+main_content = tk.Frame(root, bg=BG)
+main_content.pack(side="left", fill="both", expand=True)
+
+
+
+top_header = tk.Frame(main_content, bg=WHITE, height=85)
+top_header.pack(fill="x")
+top_header.pack_propagate(False)
+
+tk.Label(
+    top_header,
+    text="Dashboard",
+    font=("Arial", 22, "bold"),
+    bg=WHITE,
+    fg=DARK
+).pack(side="left", padx=30, pady=20)
+
+tk.Label(
+    top_header,
+    text="ADMINISTRATOR",
+    font=("Arial", 10, "bold"),
+    bg=WHITE,
+    fg=PRIMARY
+).pack(side="right", padx=30)
+
+
+welcome_frame = tk.Frame(main_content, bg=BG)
+welcome_frame.pack(fill="x", padx=30, pady=(30, 20))
+
+tk.Label(
+    welcome_frame,
+    text="Welcome to Student Management System!",
+    font=("Arial", 18, "bold"),
+    bg=BG,
+    fg=DARK
+).pack(anchor="w")
+
+tk.Label(
+    welcome_frame,
+    text="Manage student information through your desktop application.",
+    font=("Arial", 10),
+    bg=BG,
+    fg=GRAY
+).pack(anchor="w", pady=7)
+
+
+cards_frame = tk.Frame(main_content, bg=BG)
+cards_frame.pack(fill="x", padx=25, pady=10)
+
+
+def create_card(parent, title, value, color):
+
+    card = tk.Frame(
+        parent,
+        bg=WHITE,
+        highlightbackground="#E7E5EF",
+        highlightthickness=1
+    )
+
+    card.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=7,
+        ipady=15
+    )
+
+    tk.Label(
+        card,
+        text=title,
+        font=("Arial", 10, "bold"),
+        bg=WHITE,
+        fg=GRAY
+    ).pack(anchor="w", padx=18, pady=(18, 8))
+
+    value_label = tk.Label(
+        card,
+        text=value,
+        font=("Arial", 27, "bold"),
+        bg=WHITE,
+        fg=color
+    )
+
+    value_label.pack(anchor="w", padx=18, pady=(0, 15))
+
+    return value_label
+
+
+total_students = create_card(
+    cards_frame,
+    "TOTAL STUDENTS",
+    "0",
+    PRIMARY
+)
+
+total_courses = create_card(
+    cards_frame,
+    "TOTAL COURSES",
+    "0",
+    GREEN
+)
+
+recent_students = create_card(
+    cards_frame,
+    "STUDENT RECORDS",
+    "0",
+    "#E49A37"
+)
+
+
+actions_frame = tk.Frame(
+    main_content,
+    bg=WHITE,
+    highlightbackground="#E7E5EF",
+    highlightthickness=1
+)
+
+actions_frame.pack(fill="x", padx=32, pady=25)
+
+tk.Label(
+    actions_frame,
+    text="Quick Actions",
+    font=("Arial", 16, "bold"),
+    bg=WHITE,
+    fg=DARK
+).pack(anchor="w", padx=25, pady=(22, 5))
+
+tk.Label(
+    actions_frame,
+    text="Choose an action to continue.",
+    font=("Arial", 10),
+    bg=WHITE,
+    fg=GRAY
+).pack(anchor="w", padx=25, pady=5)
+
+buttons_frame = tk.Frame(actions_frame, bg=WHITE)
+buttons_frame.pack(anchor="w", padx=25, pady=20)
+
+create_button(
+    buttons_frame,
+    "+ Add New Student",
+    open_new_window,
+    width=20
+).pack(side="left", padx=(0, 12))
+
+create_button(
+    buttons_frame,
+    "About Application",
+    open_about_window,
+    bg=LIGHT_PURPLE,
+    fg=PRIMARY,
+    width=20
+).pack(side="left")
+
+
+activity_frame = tk.Frame(
+    main_content,
+    bg=WHITE,
+    highlightbackground="#E7E5EF",
+    highlightthickness=1
+)
+
+activity_frame.pack(fill="both", expand=True, padx=32, pady=(0, 20))
+
+tk.Label(
+    activity_frame,
+    text="Application Information",
+    font=("Arial", 15, "bold"),
+    bg=WHITE,
+    fg=DARK
+).pack(anchor="w", padx=25, pady=(20, 8))
+
+tk.Label(
+    activity_frame,
+    text=(
+        "This application demonstrates a professional Tkinter interface.\n"
+        "Use the File menu to open additional application windows.\n\n"
+        "New Student  - Opens a child window using Toplevel().\n"
+        "About        - Displays application and developer information.\n"
+        "Exit         - Closes the main application."
+    ),
+    font=("Arial", 10),
+    bg=WHITE,
+    fg=GRAY,
+    justify="left"
+).pack(anchor="w", padx=25, pady=10)
+
+
+footer = tk.Label(
+    main_content,
+    text="Student Management System  |  Version 1.0",
+    font=("Arial", 9),
+    bg=BG,
+    fg=GRAY
+)
+
+footer.pack(side="bottom", pady=10)
+
+
+root.mainloop()
